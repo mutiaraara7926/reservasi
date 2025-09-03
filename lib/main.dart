@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projek_ara/view/home_page.dart';
+import 'package:projek_ara/view/login.dart';
+import 'package:projek_ara/view/register_api.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,7 +33,11 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: HomePage(),
+      home: Login(),
+      routes: {
+        RegisterApi.id: (context) => const RegisterApi(),
+        HomePage.id: (context) => const HomePage(),
+      },
     );
   }
 }

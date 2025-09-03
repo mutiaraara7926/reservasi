@@ -24,7 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundColor: Colors.blue,
+                    backgroundColor: const Color.fromARGB(255, 19, 73, 41),
                     child: Icon(Icons.person, size: 20, color: Colors.white),
                   ),
                   Positioned(
@@ -71,7 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
             ),
-            SizedBox(height: 24),
+            SizedBox(height: 200),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50),
