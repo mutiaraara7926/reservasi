@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:projek_ara/view/home_page.dart';
 import 'package:projek_ara/view/login.dart';
 import 'package:projek_ara/view/register_api.dart';
+import 'package:projek_ara/view/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,10 +34,13 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Login(),
+      initialRoute: Day16SplashScreen.id,
+
       routes: {
+        Day16SplashScreen.id: (context) => const Day16SplashScreen(),
         RegisterApi.id: (context) => const RegisterApi(),
         HomePage.id: (context) => const HomePage(),
+        Login.id: (context) => const Login(),
       },
     );
   }

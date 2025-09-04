@@ -7,26 +7,27 @@ import 'package:projek_ara/model/user_model.dart';
 import 'package:projek_ara/shared_preference/shared_preference.dart';
 
 class AuthenticationAPI {
-  static Future<RegisterUserModel> registerUser({
+  static Future<RegistUserModel> registerUser({
     required String email,
     required String password,
     required String name,
   }) async {
     final url = Uri.parse(Endpoint.register);
+
     final response = await http.post(
       url,
       body: {"name": name, "email": email, "password": password},
       headers: {"Accept": "application/json"},
     );
     if (response.statusCode == 200) {
-      return RegisterUserModel.fromJson(json.decode(response.body));
+      return RegistUserModel.fromJson(json.decode(response.body));
     } else {
       final error = json.decode(response.body);
       throw Exception(error["message"] ?? "Register gagal");
     }
   }
 
-  static Future<RegisterUserModel> loginUser({
+  static Future<RegistUserModel> loginUser({
     required String email,
     required String password,
   }) async {
@@ -37,10 +38,13 @@ class AuthenticationAPI {
       headers: {"Accept": "application/json"},
     );
     if (response.statusCode == 200) {
-      return RegisterUserModel.fromJson(json.decode(response.body));
+      final data = RegistUserModel.fromJson(json.decode(response.body));
+      await PreferenceHandler.saveToken(data.data.token);
+      await PreferenceHandler.saveLogin();
+      return data;
     } else {
       final error = json.decode(response.body);
-      throw Exception(error["message"] ?? "Register gagal");
+      throw Exception(error["message"] ?? "Something went wrong");
     }
   }
 

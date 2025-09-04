@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:projek_ara/api/register_user.dart';
 import 'package:projek_ara/extension/navigation.dart';
 import 'package:projek_ara/model/user_model.dart';
@@ -8,68 +9,68 @@ import 'package:projek_ara/view/home_page.dart';
 import 'package:projek_ara/view/register_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// void showSuccessDialog(BuildContext context, {required String message}) {
-//   showDialog(
-//     context: context,
-//     barrierDismissible: true,
-//     barrierColor: Colors.black54,
-//     builder: (context) {
-//       Future.delayed(Duration(seconds: 3), () {
-//         if (Navigator.canPop(context)) {
-//           Navigator.pop(context);
-//         }
-//       });
+void showSuccessDialog(BuildContext context, {required String message}) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierColor: Colors.black54,
+    builder: (context) {
+      Future.delayed(Duration(seconds: 3), () {
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+      });
 
-//       return Center(
-//         child: Material(
-//           color: Colors.transparent,
-//           child: Container(
-//             width: MediaQuery.of(context).size.width * 0.75,
-//             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-//             decoration: BoxDecoration(
-//               color: Colors.white,
-//               borderRadius: BorderRadius.circular(16),
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: Colors.black26,
-//                   blurRadius: 10,
-//                   offset: Offset(0, 4),
-//                 ),
-//               ],
-//             ),
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 Lottie.asset(
-//                   'assets/lottie/sus.json',
-//                   width: 150,
-//                   height: 150,
-//                   repeat: false,
-//                   animate: true,
-//                 ),
-//                 SizedBox(height: 8),
-//                 Text(
-//                   'Success!',
-//                   style: TextStyle(
-//                     fontSize: 20,
-//                     fontWeight: FontWeight.bold,
-//                     color: const Color.fromARGB(255, 12, 51, 141),
-//                   ),
-//                 ),
-//                 SizedBox(height: 8),
-//                 Text(
-//                   message,
-//                   textAlign: TextAlign.center,
-//                   style: TextStyle(fontSize: 16),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       );
-//     },
-//   );
-// }
+      return Center(
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.75,
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/lottie/Foodies.json',
+                  width: 150,
+                  height: 150,
+                  repeat: false,
+                  animate: true,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Success!',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 12, 51, 141),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -82,7 +83,7 @@ class _LoginState extends State<Login> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  RegisterUserModel? user;
+  RegistUserModel? user;
   String? errorMessage;
   bool isVisibility = false;
   bool isLoading = false;
@@ -117,8 +118,8 @@ class _LoginState extends State<Login> {
       });
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Pendaftaran berhasil")));
-      PreferenceHandler.saveToken(user?.data?.token.toString() ?? "");
+      ).showSnackBar(const SnackBar(content: Text("Login berhasil")));
+      PreferenceHandler.saveToken(user?.data.token.toString() ?? "");
       context.pushReplacementNamed(HomePage.id);
       print(user?.toJson());
     } catch (e) {
@@ -140,10 +141,10 @@ class _LoginState extends State<Login> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(245, 41, 89, 121),
+        backgroundColor: const Color.fromARGB(245, 59, 41, 0),
       ),
       body: Container(
-        color: const Color.fromARGB(245, 41, 89, 121),
+        color: const Color.fromARGB(245, 59, 41, 0),
         child: Padding(
           padding: EdgeInsetsGeometry.all(8),
           child: Column(
@@ -235,13 +236,18 @@ class _LoginState extends State<Login> {
                         },
                       ),
 
-                      SizedBox(height: 75),
+                      SizedBox(height: 10),
                       SizedBox(
                         width: 300,
                         height: 50,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.amberAccent,
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              253,
+                              253,
+                              253,
+                            ),
                             // foregroundColor: Colors.amber,
                           ),
                           onPressed: () {
@@ -255,14 +261,14 @@ class _LoginState extends State<Login> {
                             "Login",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: const Color.fromARGB(245, 41, 89, 121),
+                              color: const Color.fromARGB(245, 59, 41, 0),
                               fontSize: 18,
                             ),
                           ),
                         ),
                       ),
 
-                      SizedBox(height: 20),
+                      SizedBox(height: 0.1),
                       Row(
                         children: [
                           Expanded(child: Divider()),
@@ -278,7 +284,65 @@ class _LoginState extends State<Login> {
                           Expanded(child: Divider()),
                         ],
                       ),
+                      SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {},
+                              icon: Image.asset(
+                                "assets/images/google.png",
+                                width: 24,
+                                height: 24,
+                              ),
 
+                              label: Text(
+                                "Google",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadiusGeometry.circular(
+                                    8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 0),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {},
+                              icon: Image.asset(
+                                "assets/images/facebook.png",
+                                width: 24,
+                                height: 24,
+                              ),
+
+                              label: Text(
+                                "Facebook",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadiusGeometry.circular(
+                                    8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 0),
+                        ],
+                      ),
                       SizedBox(height: 50),
                       Text.rich(
                         TextSpan(

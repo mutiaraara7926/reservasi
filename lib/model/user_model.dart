@@ -1,66 +1,70 @@
 // To parse this JSON data, do
 //
-//     final registerUserModel = registerUserModelFromJson(jsonString);
+//     final registUserModel = registUserModelFromJson(jsonString);
 
 import 'dart:convert';
 
-RegisterUserModel registerUserModelFromJson(String str) =>
-    RegisterUserModel.fromJson(json.decode(str));
+RegistUserModel registUserModelFromJson(String str) =>
+    RegistUserModel.fromJson(json.decode(str));
 
-String registerUserModelToJson(RegisterUserModel data) =>
+String registUserModelToJson(RegistUserModel data) =>
     json.encode(data.toJson());
 
-class RegisterUserModel {
-  String? message;
-  Data? data;
+class RegistUserModel {
+  String message;
+  RegistData data;
 
-  RegisterUserModel({this.message, this.data});
+  RegistUserModel({required this.message, required this.data});
 
-  factory RegisterUserModel.fromJson(Map<String, dynamic> json) =>
-      RegisterUserModel(
+  factory RegistUserModel.fromJson(Map<String, dynamic> json) =>
+      RegistUserModel(
         message: json["message"],
-        data: json["data"] == null ? null : Data.fromJson(json["data"]),
+        data: RegistData.fromJson(json["data"]),
       );
 
-  Map<String, dynamic> toJson() => {"message": message, "data": data?.toJson()};
+  Map<String, dynamic> toJson() => {"message": message, "data": data.toJson()};
 }
 
-class Data {
-  String? token;
-  User? user;
+class RegistData {
+  String token;
+  User user;
 
-  Data({this.token, this.user});
+  RegistData({required this.token, required this.user});
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-    token: json["token"],
-    user: json["user"] == null ? null : User.fromJson(json["user"]),
-  );
+  factory RegistData.fromJson(Map<String, dynamic> json) =>
+      RegistData(token: json["token"], user: User.fromJson(json["user"]));
 
-  Map<String, dynamic> toJson() => {"token": token, "user": user?.toJson()};
+  Map<String, dynamic> toJson() => {"token": token, "user": user.toJson()};
 }
 
 class User {
-  String? name;
-  String? email;
-  String? updatedAt;
-  String? createdAt;
-  int? id;
+  String name;
+  String email;
+  DateTime updatedAt;
+  DateTime createdAt;
+  int id;
 
-  User({this.name, this.email, this.updatedAt, this.createdAt, this.id});
+  User({
+    required this.name,
+    required this.email,
+    required this.updatedAt,
+    required this.createdAt,
+    required this.id,
+  });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
     name: json["name"],
     email: json["email"],
-    updatedAt: json["updated_at"],
-    createdAt: json["created_at"],
+    updatedAt: DateTime.parse(json["updated_at"]),
+    createdAt: DateTime.parse(json["created_at"]),
     id: json["id"],
   );
 
   Map<String, dynamic> toJson() => {
     "name": name,
     "email": email,
-    "updated_at": updatedAt,
-    "created_at": createdAt,
+    "updated_at": updatedAt.toIso8601String(),
+    "created_at": createdAt.toIso8601String(),
     "id": id,
   };
 }

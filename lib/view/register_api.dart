@@ -17,7 +17,7 @@ class _RegisterApiState extends State<RegisterApi> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
-  RegisterUserModel? user;
+  RegistUserModel? user;
   String? errorMessage;
   bool isVisibility = false;
   bool isLoading = false;
@@ -66,14 +66,6 @@ class _RegisterApiState extends State<RegisterApi> {
       setState(() {});
       isLoading = false;
     }
-    // final user = User(email: email, password: password, name: name);
-    // await DbHelper.registerUser(user);
-    // Future.delayed(const Duration(seconds: 1)).then((value) {
-    //   isLoading = false;
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(const SnackBar(content: Text("Pendaftaran berhasil")));
-    // });
   }
 
   @override
@@ -81,10 +73,11 @@ class _RegisterApiState extends State<RegisterApi> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(245, 41, 89, 121),
+        backgroundColor: const Color(0xff748873),
       ),
       body: Container(
-        color: const Color.fromARGB(245, 41, 89, 121),
+        color: const Color(0xff748873),
+
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Column(
@@ -94,7 +87,7 @@ class _RegisterApiState extends State<RegisterApi> {
                 "Buat akun",
                 style: TextStyle(
                   fontSize: 30,
-                  color: Colors.amberAccent,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -199,7 +192,7 @@ class _RegisterApiState extends State<RegisterApi> {
                       height: 60,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amberAccent,
+                          backgroundColor: Colors.white,
                           // foregroundColor: Colors.amber,
                         ),
                         onPressed: () async {

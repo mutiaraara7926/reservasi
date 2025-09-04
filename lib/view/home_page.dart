@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:projek_ara/model/get_menu.dart';
 import 'package:projek_ara/model/list_menu_model.dart';
-// import 'package:projek_ara/view/profil_page.dart';
 import 'package:projek_ara/view/profile_page.dart';
-import 'package:projek_ara/view/reservasi_screen.dart'; // pastikan ada file ini
+import 'package:projek_ara/view/reservasi_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,6 +17,21 @@ class _HomePageState extends State<HomePage> {
   List<Datum> menus = [];
   bool isLoading = false;
   int _selectedIndex = 0;
+
+  List<Datum> keranjang = [];
+  int get totalHarga {
+    return keranjang.fold(0, (sum, item) {
+      final harga =
+          int.tryParse(item.price.replaceAll(RegExp(r'[^0-9]'), "")) ?? 0;
+      return sum + harga;
+    });
+  }
+
+  void tambahKeKeranjang(Datum menu) {
+    setState(() {
+      keranjang.add(menu);
+    });
+  }
 
   @override
   void initState() {
@@ -35,12 +50,10 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // daftar halaman sesuai bottom nav
   List<Widget> get _pages => [
     _buildHomeContent(),
-    const ReservasiScreen(),
-
-    const ProfilePage(), // halaman profil asli
+    ReservasiScreen(keranjang: keranjang),
+    const ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -53,7 +66,75 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      bottomSheet: keranjang.isNotEmpty
+          ? Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff798645),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 20,
+                    ),
+                  ),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return ListView(
+                          children: keranjang.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final menu = entry.value;
+
+                            return ListTile(
+                              title: Text(menu.name),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.remove_circle,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        keranjang.removeAt(index);
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  Text("Rp ${menu.price}"),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      },
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("${keranjang.length} item"),
+                      Text("Total: Rp$totalHarga"),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : null,
+
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Color(0xff748873),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.black,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
@@ -62,21 +143,25 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
         ],
       ),
-      body: SafeArea(child: _pages[_selectedIndex]),
+
+      body: Container(child: SafeArea(child: _pages[_selectedIndex])),
     );
   }
 
-  /// isi halaman home (dipisah biar rapi)
   Widget _buildHomeContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Stack(
           children: [
-            Container(
+            SizedBox(
               height: 140,
               width: double.infinity,
-              color: const Color.fromARGB(255, 10, 10, 10),
+              child: Lottie.asset(
+                'assets/lottie/Foodies.json',
+                width: 200,
+                height: 200,
+              ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,27 +178,8 @@ class _HomePageState extends State<HomePage> {
                             alignment: Alignment.topLeft,
                             height: 45,
                             width: 45,
-                            decoration: BoxDecoration(
-                              image: const DecorationImage(
-                                image: AssetImage("assets/images/makanan.jpg"),
-                                fit: BoxFit.cover,
-                              ),
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(),
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          const Text(
-                            "Hallo Ara, Selamat datang!",
-                            style: TextStyle(color: Colors.white),
                           ),
                         ],
-                      ),
-                      const Icon(
-                        Icons.notifications_active,
-                        color: Colors.white,
-                        size: 30,
                       ),
                     ],
                   ),
@@ -125,6 +191,7 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 15),
         Expanded(
           child: Card(
+            color: Color(0xff748873),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -148,11 +215,27 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       (menu.imageUrl != null && menu.imageUrl!.isNotEmpty)
-                          ? Image.network(
-                              menu.imageUrl!,
-                              height: 150,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
+                          ? GestureDetector(
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(20),
+                                    ),
+                                  ),
+                                  builder: (context) {
+                                    return _buildDetailMenu(menu);
+                                  },
+                                );
+                              },
+                              child: Image.network(
+                                menu.imageUrl!,
+                                height: 150,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
                             )
                           : Container(
                               height: 150,
@@ -191,6 +274,16 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ],
                             ),
+                            IconButton(
+                              onPressed: () {
+                                tambahKeKeranjang(menu);
+                              },
+                              icon: const Icon(
+                                Icons.add_circle,
+                                color: Colors.black,
+                                size: 28,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -202,6 +295,88 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ],
+    );
+  }
+
+  // Detail menu
+  Widget _buildDetailMenu(Datum menu) {
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.7,
+      maxChildSize: 0.95,
+      minChildSize: 0.5,
+      builder: (context, scrollController) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                (menu.imageUrl != null && menu.imageUrl!.isNotEmpty)
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          menu.imageUrl!,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.fastfood, size: 50),
+                      ),
+                const SizedBox(height: 16),
+                Text(
+                  menu.name,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Rp ${menu.price}",
+                  style: const TextStyle(fontSize: 18, color: Colors.green),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  menu.description ?? "Tidak ada deskripsi",
+                  style: const TextStyle(fontSize: 16),
+                  textAlign: TextAlign.justify,
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff748873),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    icon: const Icon(Icons.add_shopping_cart),
+                    label: const Text("Tambah ke Keranjang"),
+                    onPressed: () {
+                      tambahKeKeranjang(menu);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
