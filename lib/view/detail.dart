@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:ppkd_b_3/tugas14fluttter/model/list_menu_model.dart';
-import 'package:projek_ara/model/list_menu_model.dart';
+import 'package:projek_ara/api/list_menu_model.dart';
 
 class DetailScreen extends StatelessWidget {
   final Datum menu;

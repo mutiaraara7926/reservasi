@@ -41,6 +41,8 @@ class MyApp extends StatelessWidget {
         RegisterApi.id: (context) => const RegisterApi(),
         HomePage.id: (context) => const HomePage(),
         Login.id: (context) => const Login(),
+
+        // TambahMenu.i:(context)=> const TambahMenu()
       },
     );
   }

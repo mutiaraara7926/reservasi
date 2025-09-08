@@ -70,7 +70,7 @@ class AuthenticationAPI {
     final token = await PreferenceHandler.getToken();
     final response = await http.get(
       url,
-      headers: {"Accept": "application/json", "Authorization": "Barier $token"},
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
     );
     if (response.statusCode == 200) {
       return GetUserModel.fromJson(json.decode(response.body));

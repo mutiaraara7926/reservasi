@@ -198,15 +198,6 @@ class _RegisterApiState extends State<RegisterApi> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             await registerUser();
-
-                            // ScaffoldMessenger.of(context).showSnackBar(
-                            //   SnackBar(
-                            //     content: Text("Registrasi Berhasil!"),
-                            //     backgroundColor: Colors.amber,
-                            //   ),
-                            // );
-
-                            // Navigator.pop(context); // kembali ke login page
                           }
                         },
 

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:projek_ara/model/get_menu.dart';
-import 'package:projek_ara/model/list_menu_model.dart';
+import 'package:projek_ara/api/get_menu.dart';
+import 'package:projek_ara/api/list_menu_model.dart';
 import 'package:projek_ara/view/profile_page.dart';
 import 'package:projek_ara/view/reservasi_screen.dart';
+import 'package:projek_ara/view/tambah_menu.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -65,9 +66,20 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color.fromARGB(255, 40, 117, 72),
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => TambahMenu()),
+          );
+          if (result == true) _loadMenus();
+        },
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
       backgroundColor: Colors.white,
 
-      bottomSheet: keranjang.isNotEmpty
+      bottomSheet: _selectedIndex == 0 && keranjang.isNotEmpty
           ? Padding(
               padding: const EdgeInsets.all(8.0),
               child: SizedBox(
@@ -99,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: Icon(
+                                    icon: const Icon(
                                       Icons.remove_circle,
                                       color: Colors.red,
                                     ),
@@ -132,7 +144,7 @@ class _HomePageState extends State<HomePage> {
           : null,
 
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xff748873),
+        backgroundColor: const Color(0xff748873),
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.black,
         currentIndex: _selectedIndex,
@@ -191,7 +203,7 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 15),
         Expanded(
           child: Card(
-            color: Color(0xff748873),
+            color: const Color(0xff748873),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -226,7 +238,79 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                   builder: (context) {
-                                    return _buildDetailMenu(menu);
+                                    return Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              child: Image.network(
+                                                menu.imageUrl ?? "",
+                                                height: 200,
+                                                width: double.infinity,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              menu.name,
+                                              style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              "Rp ${menu.price}",
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.green,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              menu.description ??
+                                                  "Tidak ada deskripsi",
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 20),
+                                            ElevatedButton.icon(
+                                              onPressed: () {
+                                                tambahKeKeranjang(menu);
+                                                Navigator.pop(context);
+                                              },
+                                              icon: const Icon(
+                                                Icons.add_shopping_cart,
+                                              ),
+                                              label: const Text(
+                                                "Tambah ke Keranjang",
+                                              ),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(
+                                                  0xff798645,
+                                                ),
+                                                foregroundColor: Colors.white,
+                                                minimumSize: const Size(
+                                                  double.infinity,
+                                                  50,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
                                   },
                                 );
                               },
@@ -295,88 +379,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ],
-    );
-  }
-
-  // Detail menu
-  Widget _buildDetailMenu(Datum menu) {
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.7,
-      maxChildSize: 0.95,
-      minChildSize: 0.5,
-      builder: (context, scrollController) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: SingleChildScrollView(
-            controller: scrollController,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                (menu.imageUrl != null && menu.imageUrl!.isNotEmpty)
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          menu.imageUrl!,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : Container(
-                        height: 200,
-                        width: double.infinity,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.fastfood, size: 50),
-                      ),
-                const SizedBox(height: 16),
-                Text(
-                  menu.name,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "Rp ${menu.price}",
-                  style: const TextStyle(fontSize: 18, color: Colors.green),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  menu.description ?? "Tidak ada deskripsi",
-                  style: const TextStyle(fontSize: 16),
-                  textAlign: TextAlign.justify,
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff748873),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    icon: const Icon(Icons.add_shopping_cart),
-                    label: const Text("Tambah ke Keranjang"),
-                    onPressed: () {
-                      tambahKeKeranjang(menu);
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }

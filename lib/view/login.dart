@@ -141,10 +141,10 @@ class _LoginState extends State<Login> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(245, 59, 41, 0),
+        backgroundColor: const Color(0xff748873),
       ),
       body: Container(
-        color: const Color.fromARGB(245, 59, 41, 0),
+        color: const Color(0xff748873),
         child: Padding(
           padding: EdgeInsetsGeometry.all(8),
           child: Column(
