@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:projek_ara/api/get_menu.dart';
 import 'package:projek_ara/api/list_menu_model.dart';
+import 'package:projek_ara/view/list_reservasi.dart';
 import 'package:projek_ara/view/profile_page.dart';
 import 'package:projek_ara/view/reservasi_screen.dart';
 import 'package:projek_ara/view/tambah_menu.dart';
@@ -34,6 +35,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void hapusDariKeranjang(int index) {
+    setState(() {
+      keranjang.removeAt(index);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -54,6 +61,7 @@ class _HomePageState extends State<HomePage> {
   List<Widget> get _pages => [
     _buildHomeContent(),
     ReservasiScreen(keranjang: keranjang),
+    const ListReservasiScreen(),
     const ProfilePage(),
   ];
 
@@ -100,33 +108,83 @@ class _HomePageState extends State<HomePage> {
                     showModalBottomSheet(
                       context: context,
                       builder: (context) {
-                        return ListView(
-                          children: keranjang.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final menu = entry.value;
-
-                            return ListTile(
-                              title: Text(menu.name),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "Keranjang Reservasi",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Expanded(
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: keranjang.length,
+                                  itemBuilder: (context, index) {
+                                    final menu = keranjang[index];
+                                    return Card(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      child: ListTile(
+                                        title: Text(menu.name),
+                                        subtitle: Text("Rp ${menu.price}"),
+                                        trailing: IconButton(
+                                          icon: const Icon(
+                                            Icons.remove_circle,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () {
+                                            hapusDariKeranjang(index);
+                                            if (keranjang.isEmpty) {
+                                              Navigator.pop(context);
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.remove_circle,
-                                      color: Colors.red,
+                                  Text(
+                                    "Total: ${keranjang.length} item",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    onPressed: () {
-                                      setState(() {
-                                        keranjang.removeAt(index);
-                                      });
-                                      Navigator.pop(context);
-                                    },
                                   ),
-                                  Text("Rp ${menu.price}"),
+                                  Text(
+                                    "Rp$totalHarga",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ],
                               ),
-                            );
-                          }).toList(),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  setState(() {
+                                    _selectedIndex = 1;
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xff798645),
+                                  foregroundColor: Colors.white,
+                                  minimumSize: const Size(double.infinity, 50),
+                                ),
+                                child: const Text("Lanjut ke Reservasi"),
+                              ),
+                            ],
+                          ),
                         );
                       },
                     );
@@ -144,14 +202,18 @@ class _HomePageState extends State<HomePage> {
           : null,
 
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xff748873),
-        selectedItemColor: Colors.white,
+        backgroundColor: Color(0xff748873),
+        selectedItemColor: Colors.green,
         unselectedItemColor: Colors.black,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.event), label: "Reservasi"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: "Daftar",
+          ), // UBAH INI
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
         ],
       ),

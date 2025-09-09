@@ -94,6 +94,7 @@ class _LoginState extends State<Login> {
   }
 
   void login() async {
+    if (!mounted) return; // jaga-jaga
     setState(() {
       isLoading = true;
       errorMessage = null;
@@ -113,6 +114,7 @@ class _LoginState extends State<Login> {
         email: email,
         password: password,
       );
+      if (!mounted) return;
       setState(() {
         user = result;
       });
