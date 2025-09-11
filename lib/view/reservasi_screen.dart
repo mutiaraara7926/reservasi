@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:projek_ara/api/list_menu_model.dart';
 import 'package:projek_ara/api/reservasi_api.dart';
+import 'package:projek_ara/model/list_menu_model.dart';
 
 class ReservasiScreen extends StatefulWidget {
   final List<Datum> keranjang;
@@ -47,8 +47,11 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
 
   int get totalHarga {
     return widget.keranjang.fold(0, (sum, item) {
-      final harga =
-          int.tryParse(item.price.replaceAll(RegExp(r'[^0-9]'), "")) ?? 0;
+      String cleanPrice = item.price.replaceAll(RegExp(r'[^0-9]'), '');
+      final harga = int.tryParse(cleanPrice) ?? 0;
+      print(
+        'Item: ${item.name}, Price: ${item.price}, Clean: $cleanPrice, Parsed: $harga',
+      );
       return sum + harga;
     });
   }
@@ -73,6 +76,18 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
       return;
     }
 
+    if (totalHarga <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Error: Total harga tidak valid. Silakan periksa menu yang dipilih.",
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final reservedAt = DateTime(
       selectedDate!.year,
       selectedDate!.month,
@@ -86,6 +101,8 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
     });
 
     try {
+      print('Mengirim reservasi dengan total harga: $totalHarga');
+
       final success = await ReservasiService.createReservasi(
         name: nameController.text,
         reservedAt: reservedAt,
@@ -120,7 +137,11 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
         isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text("Error: $e"),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
       );
     }
   }
@@ -160,21 +181,30 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
               Text(
                 "Catatan: ${notesController.text.isEmpty ? '-' : notesController.text}",
               ),
+              const SizedBox(height: 8),
+              const Text(
+                "Menu:",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              ...widget.keranjang.map(
+                (item) => Text("- ${item.name} (Rp${item.price})"),
+              ),
             ],
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () {},
+            // => Navigator.pop(ctx),
             child: const Text("Batal"),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              // Navigator.pop(ctx);
               _submitReservasi();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xff798645),
+              backgroundColor: const Color(0xff8A2D3B),
               foregroundColor: Colors.white,
             ),
             child: const Text("Konfirmasi"),
@@ -188,188 +218,223 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Reservasi"),
-        backgroundColor: Colors.white,
+        title: const Text(
+          "Reservasi",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xffFFDBB6),
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xff8A2D3B),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : widget.keranjang.isEmpty
-          ? const Center(child: Text("Keranjang kosong"))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Daftar Menu
-                  const Text(
-                    "Menu yang dipesan:",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: widget.keranjang.length,
-                    itemBuilder: (context, index) {
-                      final menu = widget.keranjang[index];
-                      return Card(
-                        color: const Color(0xff748873),
-                        elevation: 4,
-                        margin: const EdgeInsets.all(8),
-                        child: ListTile(
-                          title: Text(menu.name),
-                          subtitle: Text("Rp ${menu.price}"),
-                          trailing: const Icon(Icons.fastfood),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-                  const Divider(),
-
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: "Nama Reservasi",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+      body: Container(
+        color: Color(0xffF5EEDC),
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : widget.keranjang.isEmpty
+            ? const Center(child: Text("Keranjang kosong"))
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Daftar Menu
+                    const Text(
+                      "Menu yang dipesan:",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  TextField(
-                    controller: guestCountController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: "Jumlah Tamu",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  const Text(
-                    "Pilih Tanggal Reservasi",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: _pickDate,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff798645),
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text("Pilih Tanggal"),
-                      ),
-                      const SizedBox(width: 16),
-                      Text(
-                        selectedDate == null
-                            ? "Belum dipilih"
-                            : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  const Text(
-                    "Pilih Jam Reservasi",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: _pickTime,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff798645),
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text("Pilih Waktu"),
-                      ),
-                      const SizedBox(width: 16),
-                      Text(
-                        selectedTime == null
-                            ? "Belum dipilih"
-                            : "${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}",
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  TextField(
-                    controller: notesController,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      labelText: "Catatan untuk reservasi",
-                      hintText: "Contoh: Tolong siapkan meja dekat jendela",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Card(
-                    color: Colors.grey[200],
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            "Total Harga:",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                    const SizedBox(height: 8),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: widget.keranjang.length,
+                      itemBuilder: (context, index) {
+                        final menu = widget.keranjang[index];
+                        return Card(
+                          color: const Color(0xff8A2D3B),
+                          elevation: 4,
+                          margin: const EdgeInsets.all(8),
+                          child: ListTile(
+                            title: Text(
+                              menu.name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            subtitle: Text(
+                              "Rp ${menu.price}",
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            trailing: const Icon(
+                              Icons.fastfood,
+                              color: Colors.white,
                             ),
                           ),
-                          Text(
-                            "Rp$totalHarga",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 16),
+                    const Divider(),
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff798645),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: "Nama Reservasi",
+                        border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                      onPressed: _showConfirmationDialog,
-                      child: const Text(
-                        "Reservasi Sekarang",
-                        style: TextStyle(fontSize: 16),
+                        filled: true,
+                        fillColor: Colors.grey[100],
                       ),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 16),
+
+                    TextField(
+                      controller: guestCountController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "Jumlah Tamu",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    const Text(
+                      "Pilih Tanggal Reservasi",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: _pickDate,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff8A2D3B),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text("Pilih Tanggal"),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          selectedDate == null
+                              ? "Belum dipilih"
+                              : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    const Text(
+                      "Pilih Jam Reservasi",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: _pickTime,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff8A2D3B),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text("Pilih Waktu"),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          selectedTime == null
+                              ? "Belum dipilih"
+                              : "${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}",
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    TextField(
+                      controller: notesController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        labelText: "Catatan untuk reservasi",
+                        hintText: "Contoh: Tolong siapkan meja dekat jendela",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Card(
+                      color: Colors.grey[200],
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "Total Harga:",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xff8A2D3B),
+                              ),
+                            ),
+                            Text(
+                              "Rp$totalHarga",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff8A2D3B),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: _showConfirmationDialog,
+                        child: const Text(
+                          "Reservasi Sekarang",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:projek_ara/api/get_menu.dart';
-import 'package:projek_ara/api/list_menu_model.dart';
+import 'package:projek_ara/model/get_menu.dart';
+import 'package:projek_ara/model/list_menu_model.dart';
 import 'package:projek_ara/view/list_reservasi.dart';
 import 'package:projek_ara/view/profile_page.dart';
 import 'package:projek_ara/view/reservasi_screen.dart';
@@ -74,17 +74,25 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color.fromARGB(255, 40, 117, 72),
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => TambahMenu()),
-          );
-          if (result == true) _loadMenus();
-        },
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+      floatingActionButton: _selectedIndex == 0
+          ? FloatingActionButton(
+              backgroundColor: const Color.fromARGB(255, 243, 164, 190),
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TambahMenu()),
+                );
+                if (result == true) {
+                  _loadMenus();
+                  setState(() {
+                    keranjang.clear();
+                  });
+                }
+              },
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
+
       backgroundColor: Colors.white,
 
       bottomSheet: _selectedIndex == 0 && keranjang.isNotEmpty
@@ -94,7 +102,7 @@ class _HomePageState extends State<HomePage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff798645),
+                    backgroundColor: const Color(0xff8A2D3B),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -177,7 +185,7 @@ class _HomePageState extends State<HomePage> {
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xff798645),
+                                  backgroundColor: const Color(0xff8A2D3B),
                                   foregroundColor: Colors.white,
                                   minimumSize: const Size(double.infinity, 50),
                                 ),
@@ -202,23 +210,24 @@ class _HomePageState extends State<HomePage> {
           : null,
 
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xff748873),
-        selectedItemColor: Colors.green,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: const Color(0xff8A2D3B),
+        selectedItemColor: Colors.white,
         unselectedItemColor: Colors.black,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.event), label: "Reservasi"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: "Daftar",
-          ), // UBAH INI
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: "Daftar"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
         ],
       ),
 
-      body: Container(child: SafeArea(child: _pages[_selectedIndex])),
+      body: Container(
+        color: const Color(0xff8A2D3B),
+        child: SafeArea(child: _pages[_selectedIndex]),
+      ),
     );
   }
 
@@ -265,7 +274,7 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 15),
         Expanded(
           child: Card(
-            color: const Color(0xff748873),
+            color: const Color(0xffF5EEDC),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -276,6 +285,7 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (context, index) {
                 final menu = menus[index];
                 return Card(
+                  color: const Color(0xffF5EEDC),
                   clipBehavior: Clip.antiAliasWithSaveLayer,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -356,7 +366,7 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: const Color(
-                                                  0xff798645,
+                                                  0xff8A2D3B,
                                                 ),
                                                 foregroundColor: Colors.white,
                                                 minimumSize: const Size(
@@ -426,7 +436,7 @@ class _HomePageState extends State<HomePage> {
                               },
                               icon: const Icon(
                                 Icons.add_circle,
-                                color: Colors.black,
+                                color: Color(0xff8A2D3B),
                                 size: 28,
                               ),
                             ),

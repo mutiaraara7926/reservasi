@@ -40,7 +40,7 @@ class _Day16SplashScreenState extends State<Day16SplashScreen> {
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          color: Color(0xff748873),
+          color: Color(0xff8A2D3B),
 
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

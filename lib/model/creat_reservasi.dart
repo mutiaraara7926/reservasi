@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final creatReservasi = creatReservasiFromJson(jsonString);
-
 import 'dart:convert';
 
 CreatReservasi creatReservasiFromJson(String str) =>

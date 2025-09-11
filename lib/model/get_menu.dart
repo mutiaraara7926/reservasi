@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:projek_ara/api/list_menu_model.dart';
+import 'package:projek_ara/model/list_menu_model.dart';
 import 'package:projek_ara/shared_preference/shared_preference.dart';
 
 Future<List<Datum>> getMenu() async {

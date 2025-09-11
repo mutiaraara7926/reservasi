@@ -3,6 +3,7 @@ import 'package:projek_ara/api/register_user.dart';
 import 'package:projek_ara/extension/navigation.dart';
 import 'package:projek_ara/model/get_user.dart';
 import 'package:projek_ara/shared_preference/shared_preference.dart';
+import 'package:projek_ara/view/edit_profile.dart';
 import 'package:projek_ara/view/login.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -37,8 +38,8 @@ class _ProfilePageState extends State<ProfilePage> {
       final data = await AuthenticationAPI.getProfile();
       setState(() {
         userData = data;
-        _nameController.text = data.data?.name ?? '';
-        _emailController.text = data.data?.email ?? '';
+        _nameController.text = data.data.name ?? '';
+        _emailController.text = data.data.email ?? '';
         isLoading = false;
       });
     } catch (e) {
@@ -49,53 +50,75 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void showEditDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Edit Profile"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Batal"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                await AuthenticationAPI.updateUser(name: _nameController.text);
-                _loadProfileData();
-                Navigator.pop(context);
-              },
-              child: const Text("Simpan"),
-            ),
-          ],
-        );
-      },
-    );
+  Future<void> _saveChanges() async {
+    setState(() => isLoading = true);
+    try {
+      final updatedUser = await AuthenticationAPI.updateUser(
+        name: _nameController.text,
+      );
+
+      setState(() => isLoading = false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Profile updated successfully")),
+      );
+
+      Navigator.pop(context, updatedUser); // kirim balik user baru
+    } catch (e) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed to update profile: $e")));
+    }
   }
+
+  // void showEditDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text("Edit Profile"),
+  //         content: SingleChildScrollView(
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               TextField(
+  //                 controller: _nameController,
+  //                 decoration: const InputDecoration(
+  //                   labelText: 'Nama',
+  //                   border: OutlineInputBorder(),
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 20),
+  //               TextField(
+  //                 controller: _emailController,
+  //                 decoration: const InputDecoration(
+  //                   labelText: 'Email',
+  //                   border: OutlineInputBorder(),
+  //                 ),
+  //                 keyboardType: TextInputType.emailAddress,
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.pop(context),
+  //             child: const Text("Batal"),
+  //           ),
+  //           ElevatedButton(
+  //             onPressed: () async {
+  //               await AuthenticationAPI.updateUser(name: _nameController.text);
+  //               _loadProfileData();
+  //               Navigator.pop(context);
+  //             },
+  //             child: const Text("Simpan"),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -103,100 +126,139 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: const Text(
           "Profile",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xffFFDBB6),
+          ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xff8A2D3B),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : errorMessage != null
-          ? Center(child: Text("Error: $errorMessage"))
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Center(
-                    child: Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: const Color.fromARGB(
-                            255,
-                            19,
-                            73,
-                            41,
+      body: Container(
+        color: Color(0xffFFDBB6),
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : errorMessage != null
+            ? Center(child: Text("Error: $errorMessage"))
+            : Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Center(
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundColor: const Color(0xff8A2D3B),
+                            child: const Icon(
+                              Icons.person,
+                              size: 40,
+                              color: Colors.white,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.person,
-                            size: 40,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: CircleAvatar(
-                            radius: 18,
-                            backgroundColor: Colors.amber,
-                            child: IconButton(
-                              onPressed: showEditDialog,
-                              icon: const Icon(
-                                Icons.edit,
-                                size: 18,
-                                color: Colors.blueGrey,
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: CircleAvatar(
+                              radius: 18,
+                              backgroundColor: Colors.amber,
+                              child: IconButton(
+                                onPressed: () async {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const EditProfileScreen(),
+                                    ),
+                                  );
+
+                                  if (result != null) {
+                                    _loadProfileData();
+                                  }
+                                },
+
+                                icon: const Icon(
+                                  Icons.edit,
+                                  size: 18,
+                                  color: Colors.blueGrey,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(
-                            Icons.person,
-                            color: Colors.amber,
-                          ),
-                          title: const Text("Nama"),
-                          subtitle: Text(userData?.data?.name ?? "-"),
-                        ),
-                        const Divider(),
-                        ListTile(
-                          leading: const Icon(Icons.email, color: Colors.amber),
-                          title: const Text("Email"),
-                          subtitle: Text(userData?.data?.email ?? "-"),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        ],
                       ),
                     ),
-                    onPressed: () {
-                      PreferenceHandler.removeLogin();
-                      context.pushReplacementNamed(Login.id);
-                    },
-                    icon: const Icon(Icons.logout),
-                    label: const Text("Logout"),
-                  ),
-                ],
+                    const SizedBox(height: 50),
+
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: const Icon(
+                              Icons.person,
+                              color: Color(0xff8A2D3B),
+                            ),
+                            title: const Text("Nama"),
+                            subtitle: Text(userData?.data.name ?? "-"),
+                          ),
+                          const Divider(),
+                          ListTile(
+                            leading: const Icon(
+                              Icons.email,
+                              color: Color(0xff8A2D3B),
+                            ),
+                            title: const Text("Email"),
+                            subtitle: Text(userData?.data.email ?? "-"),
+                          ),
+                          const Divider(),
+                          ListTile(
+                            leading: const Icon(
+                              Icons.notifications,
+                              color: Color(0xff8A2D3B),
+                            ),
+                            title: const Text("Notifikasi"),
+                            subtitle: Text("Aktifkan notifikasi anda di sini"),
+                          ),
+                          const Divider(),
+                          ListTile(
+                            leading: const Icon(
+                              Icons.info,
+                              color: Color(0xff8A2D3B),
+                            ),
+                            title: const Text("Tentang Aplikasi"),
+                            subtitle: Text("info aplikasi"),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // const Spacer(),
+                    SizedBox(height: 50),
+
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        PreferenceHandler.removeLogin();
+                        context.pushReplacementNamed(Login.id);
+                      },
+                      icon: const Icon(Icons.logout, color: Color(0xff8A2D3B)),
+                      label: const Text(
+                        "Logout",
+                        style: TextStyle(color: Color(0xff8A2D3B)),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }

@@ -9,7 +9,6 @@ import 'package:projek_ara/model/register_model.dart';
 import 'package:projek_ara/shared_preference/shared_preference.dart';
 
 class AuthenticationAPI {
-  // register user
   static Future<RegisterUserModel> registerUser({
     required String email,
     required String password,
@@ -31,7 +30,6 @@ class AuthenticationAPI {
     }
   }
 
-  //  login user
   static Future<RegisterUserModel> loginUser({
     required String email,
     required String password,
@@ -52,7 +50,6 @@ class AuthenticationAPI {
     }
   }
 
-  // update profile
   static Future<GetUserModel> updateUser({required String name}) async {
     final url = Uri.parse(Endpoint.profile);
     final token = await PreferenceHandler.getToken();
@@ -75,29 +72,21 @@ class AuthenticationAPI {
     }
   }
 
-  //  get profile
   static Future<GetUserModel> getProfile() async {
     final url = Uri.parse(Endpoint.profile);
     final token = await PreferenceHandler.getToken();
-
-    if (token == null) {
-      throw Exception("Token tidak ditemukan, silakan login ulang");
-    }
-
     final response = await http.get(
       url,
       headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
     );
-
     if (response.statusCode == 200) {
       return GetUserModel.fromJson(json.decode(response.body));
     } else {
       final error = json.decode(response.body);
-      throw Exception(error["message"] ?? "Gagal mengambil profil");
+      throw Exception(error["message"] ?? "Get data is not valid");
     }
   }
 
-  // get menus
   static Future<List<MenuModel>> getMenus() async {
     final url = Uri.parse(Endpoint.menus);
     final token = await PreferenceHandler.getToken();
@@ -124,7 +113,6 @@ class AuthenticationAPI {
     }
   }
 
-  // add menu
   static Future<String> addMenu(
     String name,
     String description,
@@ -138,30 +126,40 @@ class AuthenticationAPI {
       throw Exception("Token tidak ditemukan, silakan login ulang");
     }
 
-    String? imageBase64;
+    var request = http.MultipartRequest('POST', url);
+
+    request.headers['Authorization'] = 'Bearer $token';
+    request.headers['Accept'] = 'application/json';
+
+    request.fields['name'] = name;
+    request.fields['description'] = description;
+    request.fields['price'] = price;
+
     if (image != null) {
-      final bytes = await image.readAsBytes();
-      imageBase64 = base64Encode(bytes);
+      var imageFile = await http.MultipartFile.fromPath(
+        'image',
+        image.path,
+        filename: 'menu_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      request.files.add(imageFile);
     }
 
-    final body = {"name": name, "description": description, "price": price};
+    try {
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+      final data = jsonDecode(responseBody);
 
-    if (imageBase64 != null) {
-      body["image"] = imageBase64;
-    }
+      print("Add Menu Response: ${response.statusCode}");
+      print("Add Menu Body: $responseBody");
 
-    final response = await http.post(
-      url,
-      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
-      body: body,
-    );
-
-    final data = jsonDecode(response.body);
-
-    if (response.statusCode == 200) {
-      return data['message'] ?? "success";
-    } else {
-      throw Exception(data['message'] ?? "Gagal menambahkan menu");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return data['message'] ?? "Menu berhasil ditambahkan";
+      } else {
+        throw Exception(data['message'] ?? "Gagal menambahkan menu");
+      }
+    } catch (e) {
+      print("Error in addMenu: $e");
+      throw Exception("Gagal menambahkan menu: $e");
     }
   }
 

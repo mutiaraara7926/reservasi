@@ -21,7 +21,11 @@ class _TambahMenuState extends State<TambahMenu> {
 
   Future<void> pickImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxWidth: 800,
+    );
 
     if (picked != null) {
       setState(() => selectedImage = File(picked.path));
@@ -40,17 +44,21 @@ class _TambahMenuState extends State<TambahMenu> {
         priceController.text,
         selectedImage,
       );
+
       print("Hasil addMenu API: $result");
 
       setState(() => loading = false);
 
-      if (result == "success") {
-        Navigator.pop(context, true);
+      // Cek jika berhasil
+      if (result.toLowerCase().contains("berhasil") ||
+          result.toLowerCase().contains("success")) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Menu berhasil ditambahkan"),
-            backgroundColor: Colors.green,
-          ),
+          SnackBar(content: Text(result), backgroundColor: Colors.green),
+        );
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result), backgroundColor: Colors.orange),
         );
       }
     } catch (e) {
@@ -65,99 +73,154 @@ class _TambahMenuState extends State<TambahMenu> {
   }
 
   @override
+  void dispose() {
+    nameController.dispose();
+    descController.dispose();
+    priceController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Tambah Menu"), centerTitle: true),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              GestureDetector(
-                onTap: pickImage,
-                child: Container(
-                  height: 180,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.grey[200],
-                    border: Border.all(color: Colors.grey),
-                  ),
-                  child: selectedImage != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.file(selectedImage!, fit: BoxFit.cover),
-                        )
-                      : Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.camera_alt,
-                                size: 40,
-                                color: Colors.grey[600],
-                              ),
-                              const SizedBox(height: 8),
-                              const Text("Tap untuk pilih gambar"),
-                            ],
+      appBar: AppBar(
+        title: const Text("Tambah Menu"),
+        centerTitle: true,
+        backgroundColor: const Color(0xff748873),
+      ),
+      body: Container(
+        color: Color(0xff748873),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                GestureDetector(
+                  onTap: pickImage,
+                  child: Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey[200],
+                      border: Border.all(color: Colors.grey[400]!, width: 2),
+                    ),
+                    child: selectedImage != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              selectedImage!,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
+                          )
+                        : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.camera_alt,
+                                  size: 50,
+                                  color: Colors.grey[600],
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  "Tap untuk pilih gambar",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: "Nama Menu",
-                  prefixIcon: Icon(Icons.fastfood_outlined),
+                const SizedBox(height: 20),
+
+                TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: "Nama Menu",
+                    prefixIcon: const Icon(Icons.fastfood_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                  ),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? "Nama wajib diisi" : null,
                 ),
-                validator: (val) =>
-                    val == null || val.isEmpty ? "Nama wajib diisi" : null,
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: priceController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: "Harga",
-                  prefixIcon: Icon(Icons.attach_money),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: priceController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: "Harga",
+                    prefixIcon: const Icon(Icons.attach_money),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                  ),
+                  validator: (val) {
+                    if (val == null || val.isEmpty) return "Harga wajib diisi";
+                    if (int.tryParse(val.replaceAll(RegExp(r'[^0-9]'), '')) ==
+                        null) {
+                      return "Harus berupa angka";
+                    }
+                    return null;
+                  },
                 ),
-                validator: (val) {
-                  if (val == null || val.isEmpty) return "Harga wajib diisi";
-                  if (int.tryParse(val) == null) return "Harus berupa angka";
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: descController,
-                maxLines: 2,
-                decoration: const InputDecoration(
-                  labelText: "Deskripsi",
-                  prefixIcon: Icon(Icons.description),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: descController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: "Deskripsi",
+                    prefixIcon: const Icon(Icons.description),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                  ),
+                  validator: (val) => val == null || val.isEmpty
+                      ? "Deskripsi wajib diisi"
+                      : null,
                 ),
-                validator: (val) =>
-                    val == null || val.isEmpty ? "Deskripsi wajib diisi" : null,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: loading ? null : handleSubmit,
-                icon: const Icon(Icons.add),
-                label: loading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Text("Tambah Menu"),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                const SizedBox(height: 24),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: loading ? null : handleSubmit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff798645),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: loading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            "Tambah Menu",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

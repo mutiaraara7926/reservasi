@@ -94,7 +94,7 @@ class _LoginState extends State<Login> {
   }
 
   void login() async {
-    if (!mounted) return; // jaga-jaga
+    if (!mounted) return;
     setState(() {
       isLoading = true;
       errorMessage = null;
@@ -143,10 +143,12 @@ class _LoginState extends State<Login> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: const Color(0xff748873),
+        backgroundColor: const Color(0xff8A2D3B),
       ),
       body: Container(
-        color: const Color(0xff748873),
+        width: double.infinity,
+        height: double.infinity,
+        color: const Color(0xff8A2D3B),
         child: Padding(
           padding: EdgeInsetsGeometry.all(8),
           child: Column(

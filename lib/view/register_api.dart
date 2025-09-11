@@ -73,10 +73,10 @@ class _RegisterApiState extends State<RegisterApi> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: const Color(0xff748873),
+        backgroundColor: const Color(0xff8A2D3B),
       ),
       body: Container(
-        color: const Color(0xff748873),
+        color: const Color(0xff8A2D3B),
 
         child: Padding(
           padding: const EdgeInsets.all(8),
@@ -96,7 +96,23 @@ class _RegisterApiState extends State<RegisterApi> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // EMAIL
+                    TextFormField(
+                      controller: nameController,
+                      style: TextStyle(color: Color(0xFFFFFFFF)),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: "Nama",
+                        hintStyle: TextStyle(color: Colors.white),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "nama Tidak boleh kosong";
+                        }
+
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20),
                     TextFormField(
                       controller: emailController,
                       style: TextStyle(color: Color(0xFFFFFFFF)),
@@ -123,24 +139,7 @@ class _RegisterApiState extends State<RegisterApi> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 20),
-                    TextFormField(
-                      controller: nameController,
-                      style: TextStyle(color: Color(0xFFFFFFFF)),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "nama",
-                        hintStyle: TextStyle(color: Colors.white),
-                        // prefixIcon: Icon(Icons.email, color: Colors.white),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "nama Tidak boleh kosong";
-                        }
 
-                        return null;
-                      },
-                    ),
                     SizedBox(height: 20),
                     // PASSWORD
                     TextFormField(
@@ -185,11 +184,11 @@ class _RegisterApiState extends State<RegisterApi> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 50),
 
                     SizedBox(
-                      width: 327,
-                      height: 60,
+                      width: 320,
+                      height: 50,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
@@ -198,6 +197,7 @@ class _RegisterApiState extends State<RegisterApi> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             await registerUser();
+                            Navigator.pop(context);
                           }
                         },
 
@@ -205,7 +205,7 @@ class _RegisterApiState extends State<RegisterApi> {
                           "Daftar",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: const Color.fromARGB(245, 41, 89, 121),
+                            color: const Color(0xff8A2D3B),
                             fontSize: 18,
                           ),
                         ),
