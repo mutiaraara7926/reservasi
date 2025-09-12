@@ -141,13 +141,10 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: const Color(0xff8A2D3B),
-      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
+        padding: EdgeInsets.only(top: 50),
         color: const Color(0xff8A2D3B),
         child: Padding(
           padding: EdgeInsetsGeometry.all(8),
