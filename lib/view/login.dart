@@ -355,7 +355,12 @@ class _LoginState extends State<Login> {
                             TextSpan(
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
-                                  context.pushNamed(RegisterApi.id);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RegisterApi(),
+                                    ),
+                                  );
                                 },
                               text: "Sign Up",
                               style: TextStyle(

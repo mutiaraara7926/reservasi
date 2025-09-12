@@ -86,10 +86,10 @@ class _TambahMenuState extends State<TambahMenu> {
       appBar: AppBar(
         title: const Text("Tambah Menu"),
         centerTitle: true,
-        backgroundColor: const Color(0xff748873),
+        backgroundColor: const Color(0xff8A2D3B),
       ),
       body: Container(
-        color: Color(0xff748873),
+        color: Color(0xff8A2D3B),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
@@ -197,8 +197,8 @@ class _TambahMenuState extends State<TambahMenu> {
                   child: ElevatedButton(
                     onPressed: loading ? null : handleSubmit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff798645),
-                      foregroundColor: Colors.white,
+                      backgroundColor: Color(0xffF5EEDC),
+                      foregroundColor: Color(0xff8A2D3B),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
